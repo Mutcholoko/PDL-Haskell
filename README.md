@@ -3,5 +3,7 @@
 
 
 Alunos:
+
 Gabriel Gavazzi Felix
+
 Lucas Souza de Oliveira
