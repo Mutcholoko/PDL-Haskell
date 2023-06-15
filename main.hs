@@ -1,39 +1,26 @@
-import Data.Array
+criaFrame :: IO [(String, String, Char)]
+criaFrame = do
+  putStrLn "Digite uma relação do grafo (ou 'pronto' para sair):"
+  relacao <- getLine
+  if relacao == "pronto" then
+    return []
+  else do
+    let frame = (words relacao !! 0, words relacao !! 1, head (words relacao !! 2))
+    frames <- criaFrame
+    return (frame : frames)
 
-criaMatriz :: Int -> Int -> IO [[[String]]]
-criaMatriz 0 _ = return []
-criaMatriz numRows numCols = do
-  row <- createRow numCols 1
-  rest <- criaMatriz (numRows - 1) numCols
-  return (row : rest)
-  where
-    createRow 0 _ = return []
-    createRow n rowNum = do
-      putStrLn ("Insira o elemento na posicao (" ++ show rowNum ++ ", " ++ show (numCols - n + 1) ++ "):")
-      val <- getLine
-      rest <- createRow (n - 1) rowNum
-      return (words val : rest)
+traverseStructure :: [(String, String, Char)] -> IO ()
+traverseStructure [] = putStrLn "Acabou."
+traverseStructure ((str1, str2, ch) : rest) = do
+  putStrLn $ "Estado origem: " ++ str1
+  putStrLn $ "Estado destino: " ++ str2
+  putStrLn $ "Programa: " ++ [ch]
+  putStrLn "------"
+  traverseStructure rest
 
-type Grafo = Array (Int, Int) [String]
+data Node = NoUnario Node Char | NoBinario Node Node Char | NoFolha Char deriving Show
 
-grafo :: Int -> IO (Grafo)
-grafo size = do
-  matrixVals <- criaMatriz size size
-  let indexedVals = [((i, j), (matrixVals !! (i-1)) !! (j-1)) | i <- [1..size], j <- [1..size]]
-  return $ array ((1, 1), (size, size)) indexedVals
-
-type W = (Int, [String])
-
-estados :: Int -> IO [W]
-estados size
-    | size <= 0 = return []
-    | otherwise = do
-        putStrLn $ "Insira a string para o vertice " ++ show size ++ ":"
-        strings <- getLine
-        rest <- estados (size - 1)
-        return $ (size, words strings) : rest
-
-data Node = NoUnario Node Char | NoBinario Node Node Char | Folha Char deriving Show
+data NodeType = Binario | Unario | Folha deriving (Show, Eq)
 
 criaArvoreExpressao :: [Char] -> Node
 criaArvoreExpressao xs = criaArvore xs []
@@ -45,28 +32,59 @@ criaArvoreExpressao xs = criaArvore xs []
           let new_node = NoUnario child x
           let updated_stack = tail stack
           criaArvore xs (new_node : updated_stack)
-      | isOperador x = do
+      | isOperadorBinario x = do
           let right = head stack
           let left = stack !! 1
           let new_node = NoBinario left right x
           let updated_stack = drop 2 stack
           criaArvore xs (new_node : updated_stack)
-      | otherwise = criaArvore xs (Folha x : stack)
+      | otherwise = criaArvore xs (NoFolha x : stack)
 
 isOperadorUnario :: Char -> Bool
-isOperadorUnario x = x `elem` "?~*"
+isOperadorUnario x = x `elem` "?*"
 
-isOperador :: Char -> Bool
-isOperador x = x `elem` ";>^v"
+isOperadorBinario :: Char -> Bool
+isOperadorBinario x = x `elem` ";U"
+
+verificarTipoNo :: Node -> NodeType
+verificarTipoNo (NoFolha _) = Folha
+verificarTipoNo (NoUnario _ _) = Unario
+verificarTipoNo (NoBinario _ _ _) = Binario
+
+retornaProgramaFolha :: Node -> Char
+retornaProgramaFolha (NoFolha c) = c
+
+retornaEstado :: (String, String, Char) -> String
+retornaEstado ( _ ,estadoDestino, _ ) = estadoDestino
+
+validaPrograma :: [(String, String, Char)] -> String -> Char -> String
+validaPrograma grafo estado programa
+  | null [(origem, destino, prog) | (origem, destino , prog) <- grafo, origem == estado, prog == programa] = "NULL"
+  | otherwise = retornaEstado $ head [(origem, destino, prog) | (origem, destino , prog) <- grafo, origem == estado, prog == programa]
+
+executaPrograma :: [(String, String, Char)] -> String -> Char -> String
+executaPrograma grafoIncidente estadoAtual programa
+  | validaPrograma grafoIncidente estadoAtual programa == "NULL" = "False"
+  | otherwise = validaPrograma grafoIncidente estadoAtual programa
+
+avaliaExpressao :: [(String, String, Char)] -> Node -> String -> Bool
+avaliaExpressao grafo expressao estadoInicial
+  | verificarTipoNo expressao == Folha =
+    executaPrograma grafo estadoInicial (retornaProgramaFolha expressao) /= "False"
+  | otherwise = False
+
+lerArvoreExpressao :: Node -> String
+lerArvoreExpressao (NoFolha c) = [c]
+lerArvoreExpressao (NoUnario node c) = c : lerArvoreExpressao node
+lerArvoreExpressao (NoBinario left right c) = c : lerArvoreExpressao left ++ lerArvoreExpressao right
+
 
 main :: IO ()
-main = do 
-    putStrLn "Insira o numero de vertices:"
-    vertices <- readLn
-    matriz <- grafo vertices
-    putStrLn $ "Matriz criada: " ++ show matriz
-    set <- estados vertices
-    print set
-    let postfixExpression = "a?ab;?"
+main = do
+    frame <- criaFrame
+    traverseStructure frame
+    let postfixExpression = "a"
     let raiz = criaArvoreExpressao postfixExpression
     putStrLn $ "Arvore de Expressao: " ++ show raiz
+    putStrLn $ lerArvoreExpressao raiz
+    print (avaliaExpressao frame raiz "w1")
