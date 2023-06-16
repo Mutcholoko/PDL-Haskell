@@ -106,7 +106,6 @@ executaFuncOrdemAltaBi grafo listaEstados programa
   | all null ([executaOpBinario grafo programa estado  | estado <- listaEstados]) = ["False"]
   | otherwise = concat [executaOpBinario grafo programa estado | estado <- listaEstados]
 
--- TO AQUI
 executaOpSequencial :: [(String, String, Char)] -> String -> Node -> Node -> [String]
 executaOpSequencial grafoIncidente estadoAtual noEsquerdo noDireito
   | verificarTipoNo noEsquerdo == Folha && verificarTipoNo noDireito == Folha =
@@ -198,7 +197,7 @@ main :: IO ()
 main = do
     frame <- criaFrame
     traverseStructure frame
-    let postfixExpression = "ab;"
+    let postfixExpression = "a*b;b;a;b*a;a;b;Uaa*;a;b;b*;b;U"
     let raiz = criaArvoreExpressao postfixExpression
     putStrLn $ "Arvore de Expressao: " ++ show raiz
     putStrLn $ lerArvoreExpressao raiz
