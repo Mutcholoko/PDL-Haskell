@@ -1,6 +1,7 @@
 import Data.List (any)
-import Debug.Trace
+import Debug.Trace ( trace )
 
+debug :: c -> String -> c
 debug = flip trace
 
 criaFrame :: IO [(String, String, Char)]
@@ -157,12 +158,17 @@ executaOpEscolha grafoIncidente estadoAtual noEsquerdo noDireito
   | hasValorDiferente "False" (retornaEscolha (avaliaEscolha grafoIncidente estadoAtual noEsquerdo) (avaliaEscolha grafoIncidente estadoAtual noDireito)) = retornaEscolha (avaliaEscolha grafoIncidente estadoAtual noEsquerdo) (avaliaEscolha grafoIncidente estadoAtual noDireito)
   | otherwise = ["False"]
 
+checaIncompatibilidade :: [String] -> String -> [String]
+checaIncompatibilidade estadosValidos programa
+  | hasValorDiferente "False" estadosValidos = estadosValidos
+  | otherwise = ["False"] `debug` programa
+
 executaOpBinario :: [(String, String, Char)] -> Node -> String -> [String]
 executaOpBinario grafoIncidente programa estadoAtual
   | recuperaOp programa == ';' =
-    executaOpSequencial grafoIncidente estadoAtual (recuperaNoEsquerdo programa) (recuperaNoDireito programa)
+    checaIncompatibilidade (executaOpSequencial grafoIncidente estadoAtual (recuperaNoEsquerdo programa) (recuperaNoDireito programa)) (show programa)
   | recuperaOp programa == 'U' =
-    executaOpEscolha grafoIncidente estadoAtual (recuperaNoEsquerdo programa) (recuperaNoDireito programa)
+    checaIncompatibilidade (executaOpEscolha grafoIncidente estadoAtual (recuperaNoEsquerdo programa) (recuperaNoDireito programa)) (show programa)
   | otherwise = ["False"]
 
 avaliaExpressao :: [(String, String, Char)] -> Node -> String -> Bool
@@ -200,7 +206,7 @@ main :: IO ()
 main = do
     frame <- criaFrame
     traverseStructure frame
-    let postfixExpression = "a*b;"
+    let postfixExpression = "abU"
     let raiz = criaArvoreExpressao postfixExpression
     putStrLn $ "Arvore de Expressao: " ++ show raiz
     putStrLn $ lerArvoreExpressao raiz
