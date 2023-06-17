@@ -1,4 +1,7 @@
 import Data.List (any)
+import Debug.Trace
+
+debug = flip trace
 
 criaFrame :: IO [(String, String, Char)]
 criaFrame = do
@@ -75,8 +78,8 @@ executaOpIteracao res grafoIncidente estadoAtual noFolha
     res ++ [estadoAtual]
   | length res == 1 =
     res ++ executaPrograma grafoIncidente estadoAtual (retornaProgramaFolha noFolha)
-  | length res == 2 =
-    res ++ executaPrograma grafoIncidente estadoAtual (retornaProgramaFolha noFolha)
+  | length res > 1 =
+    res ++ executaFuncOrdemAlta grafoIncidente (executaPrograma grafoIncidente estadoAtual (retornaProgramaFolha noFolha)) (retornaProgramaFolha noFolha)
   | otherwise = []
 
 executaOpUnario :: [(String, String, Char)] -> Node -> String -> [String]
@@ -197,7 +200,7 @@ main :: IO ()
 main = do
     frame <- criaFrame
     traverseStructure frame
-    let postfixExpression = "a*b;b;a;b*a;a;b;Uaa*;a;b;b*;b;U"
+    let postfixExpression = "a*b;"
     let raiz = criaArvoreExpressao postfixExpression
     putStrLn $ "Arvore de Expressao: " ++ show raiz
     putStrLn $ lerArvoreExpressao raiz
