@@ -1,0 +1,56 @@
+Aqui estão alguns exemplos para a execução do programa.
+
+Em todos os exemplos abaixo, o estado inicial é w1. 
+Além do mais, na fórmula, o item da esquerda é a fórmula em PDL, 
+e na direita (depois do '//') é a notação pós-fixada. 
+Você deve digitar a notação pós-fixada na varíavel postfixExpression.
+Cada linha de "Entrada do programa" deve ser digitada separadamente, e depois apertar ENTER.
+
+Fórmula: (a;b) // ab;
+Entrada do programa:
+w1 w2 a
+w1 w3 b
+Retorno: False
+
+Fórmula: (a*;b) // a*b;
+Entrada do programa:
+w1 w2 a
+w2 w3 a
+w3 w4 a
+w3 w5 b
+Retorno: True
+
+Fórmula: (a*;b)Ua // a*b;aU
+Entrada do programa:
+w1 w2 b
+Retorno: True
+
+Fórmula: (a;b)U(b;a?) // ab;ba?;U
+Entrada do programa:
+w1 w2 b
+w1 w3 a
+w1 w4 a
+Retorno: True
+
+Fórmula: (a;b)U(b*;b)U(a?;b) // ab;b*b;Ua?b;U
+Entrada do programa:
+w1 w2 a
+w1 w4 a
+w2 w3 a
+w4 w3 b
+Retorno: True
+
+Fórmula: (a;b;b?;a) // ab;b?;a;
+Entrada do programa:
+w1 w2 a
+w2 w6 a
+w2 w12 b
+w1 w3 b
+w3 w7 a
+w1 w4 b
+w4 w8 b
+w1 w5 a
+w5 w9 b
+w9 w10 a
+w9 w11 b
+Retorno: True

@@ -20,6 +20,7 @@ O repositório possui os seguintes arquivos:
 - `main.hs`: O código fonte do programa.
 - `main-old.hs`: A versão antiga do programa, que foi abandonada
 - `README.md`: Este arquivo, que fornece informações sobre o projeto e sobre o funcionamento do programa.
+- `exemplos.txt`: Arquivo de texto com exemplos prontos para testar a execução do programa mais facilmente.
 
 ## Funcionamento
 
@@ -46,6 +47,8 @@ Para compilar e executar o programa, siga as etapas abaixo:
 ## Exemplos
 
 Em todos os exemplos abaixo, o estado inicial é w1. Além do mais, na fórmula, o item da esquerda é a fórmula em PDL, e na direita (depois do '//') é a notação pós-fixada. Você deve digitar a notação pós-fixada na varíavel `postfixExpression`.
+
+Caso o usuário se interesse, também pode checar o arquivo `exemplos.txt`, que contém toda a entrada necessária para a execução.
 
 Fórmula: `(a;b) // ab;` ; Retorno: `False`
 
