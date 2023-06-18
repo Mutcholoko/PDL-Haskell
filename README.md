@@ -59,9 +59,9 @@ Fórmula: `(a*;b)Ua // a*b;aU` ; Retorno: `True`
 
 ![image](https://github.com/Mutcholoko/PDL-Haskell/assets/46263572/347aa7df-a77f-45bd-96c5-abf81df9aa41)
 
-Fórmula: `(a;b)U(b;a?) // ab;ba?;U` ; Retorno: `True`
+Fórmula: `(a;b;b?;a) // ab;b?;a;` ; Retorno: `True`
 
-![image](https://github.com/Mutcholoko/PDL-Haskell/assets/46263572/598ac20d-9aa3-45e6-b104-a19843fd1bef)
+![image](https://github.com/Mutcholoko/PDL-Haskell/assets/46263572/95028e28-cf10-4e1e-bccd-8f66d86d35a2)
 
 Fórmula: `(a*;b) // a*b;` ; Retorno: `False`
 
