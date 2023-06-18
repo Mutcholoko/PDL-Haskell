@@ -73,8 +73,8 @@ executaPrograma grafoIncidente estadoAtual programa
   | hasValorDiferente "False" (validaPrograma grafoIncidente estadoAtual programa) = validaPrograma grafoIncidente estadoAtual programa
   | otherwise = ["False"]
 
-executaOpIteracao :: [String] -> [(String, String, Char)] -> String -> Node -> [String]
-executaOpIteracao res grafoIncidente estadoAtual noFolha
+executaIteracaoFolha :: [String] -> [(String, String, Char)] -> String -> Node -> [String]
+executaIteracaoFolha res grafoIncidente estadoAtual noFolha
   | null res =
     res ++ [estadoAtual]
   | length res == 1 =
@@ -83,11 +83,29 @@ executaOpIteracao res grafoIncidente estadoAtual noFolha
     res ++ executaFuncOrdemAlta grafoIncidente (executaPrograma grafoIncidente estadoAtual (retornaProgramaFolha noFolha)) (retornaProgramaFolha noFolha)
   | otherwise = []
 
+executaIteracaoBinario :: [String] -> [(String, String, Char)] -> String -> Node -> [String]
+executaIteracaoBinario res grafoIncidente estadoAtual noBinario
+  | null res =
+    res ++ [estadoAtual]
+  | length res == 1 =
+    res ++ executaOpBinario grafoIncidente noBinario estadoAtual
+  | length res > 1 =
+    res ++ executaFuncOrdemAltaBi grafoIncidente (executaOpBinario grafoIncidente noBinario estadoAtual) noBinario
+  | otherwise = []
+
+executaOpIteracao :: [(String, String, Char)] -> String -> Node -> [String]
+executaOpIteracao grafo estado no
+  | verificarTipoNo (recuperaNo no) == Folha =
+    executaIteracaoFolha (executaIteracaoFolha (executaIteracaoFolha [] grafo estado (recuperaNo no)) grafo estado (recuperaNo no)) grafo estado (recuperaNo no)
+  | verificarTipoNo (recuperaNo no) == Binario =
+    executaIteracaoBinario (executaIteracaoBinario (executaIteracaoBinario [] grafo estado (recuperaNo no)) grafo estado (recuperaNo no)) grafo estado (recuperaNo no)
+  | otherwise = ["False"]
+
 executaOpUnario :: [(String, String, Char)] -> Node -> String -> [String]
 executaOpUnario grafoIncidente programa estadoAtual
   | recuperaOp programa == '?' = [estadoAtual]
   | recuperaOp programa == '*' =
-    executaOpIteracao (executaOpIteracao (executaOpIteracao [] grafoIncidente estadoAtual (recuperaNoFolha programa)) grafoIncidente estadoAtual (recuperaNoFolha programa)) grafoIncidente estadoAtual (recuperaNoFolha programa)
+    executaOpIteracao grafoIncidente estadoAtual programa
   | otherwise = ["False"]
 
 avaliaRamo :: [(String, String, Char)] -> String -> Node -> [String]
@@ -119,13 +137,13 @@ executaOpSequencial grafoIncidente estadoAtual noEsquerdo noDireito
   | verificarTipoNo noEsquerdo == Binario && verificarTipoNo noDireito == Folha =
     executaFuncOrdemAlta grafoIncidente (avaliaRamo grafoIncidente estadoAtual noEsquerdo) (retornaProgramaFolha noDireito)
   | verificarTipoNo noEsquerdo == Folha && verificarTipoNo noDireito == Binario =
-    executaFuncOrdemAlta grafoIncidente (avaliaRamo grafoIncidente estadoAtual noDireito) (retornaProgramaFolha noEsquerdo)
+    executaFuncOrdemAltaBi grafoIncidente (executaPrograma grafoIncidente estadoAtual (retornaProgramaFolha noEsquerdo)) noDireito
   | verificarTipoNo noEsquerdo == Unario && verificarTipoNo noDireito == Unario =
     executaFuncOrdemAltaEs grafoIncidente (avaliaEscolha grafoIncidente estadoAtual noEsquerdo) noDireito
   | verificarTipoNo noEsquerdo == Unario && verificarTipoNo noDireito == Folha =
     executaFuncOrdemAlta grafoIncidente (executaOpUnario grafoIncidente noEsquerdo estadoAtual) (retornaProgramaFolha noDireito)
   | verificarTipoNo noEsquerdo == Folha && verificarTipoNo noDireito == Unario =
-    executaFuncOrdemAlta grafoIncidente (executaOpUnario grafoIncidente noDireito estadoAtual) (retornaProgramaFolha noEsquerdo)
+    executaFuncOrdemAltaEs grafoIncidente (executaPrograma grafoIncidente estadoAtual (retornaProgramaFolha noEsquerdo)) noDireito
   | verificarTipoNo noEsquerdo == Binario && verificarTipoNo noDireito == Unario =
     executaFuncOrdemAltaEs grafoIncidente (avaliaEscolha grafoIncidente estadoAtual noEsquerdo) noDireito
   | verificarTipoNo noEsquerdo == Unario && verificarTipoNo noDireito == Binario =
@@ -149,8 +167,7 @@ avaliaEscolha grafo estado noRamo
 
 retornaEscolha :: [String] -> [String] -> [String]
 retornaEscolha op1 op2
-  | hasValorDiferente "False" op1 = op1
-  | hasValorDiferente "False" op2 = op2
+  | hasValorDiferente "False" (op1 ++ op2) = op1 ++ op2
   | otherwise = ["False"]
 
 executaOpEscolha :: [(String, String, Char)] -> String -> Node -> Node -> [String]
@@ -185,8 +202,8 @@ recuperaOp :: Node -> Char
 recuperaOp (NoUnario node c) = c
 recuperaOp (NoBinario left right c) = c
 
-recuperaNoFolha :: Node -> Node
-recuperaNoFolha (NoUnario node c) = node
+recuperaNo :: Node -> Node
+recuperaNo (NoUnario node c) = node
 
 recuperaNoEsquerdo :: Node -> Node
 recuperaNoEsquerdo (NoBinario left right c) = left
@@ -206,7 +223,7 @@ main :: IO ()
 main = do
     frame <- criaFrame
     traverseStructure frame
-    let postfixExpression = "abU"
+    let postfixExpression = "abUa*;"
     let raiz = criaArvoreExpressao postfixExpression
     putStrLn $ "Arvore de Expressao: " ++ show raiz
     putStrLn $ lerArvoreExpressao raiz
