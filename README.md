@@ -37,10 +37,10 @@ O funcionamento do nosso verificador se dá da seguinte forma:
 
 Para compilar e executar o programa, siga as etapas abaixo:
 
-1. Certifique-se de ter o GHC (Glasgow Haskell Compiler) instalado em sua máquina.
+1. Certifique-se de ter o GHC (Glasgow Haskell Compiler) e o make instalados em sua máquina.
 2. Clone este repositório em seu ambiente local.
 3. Acesse o diretório raíz do repositório por meio do terminal.
-4. Compile o código Haskell executando o seguinte comando: `ghc main.hs`.
+4. Compile o código Haskell executando o seguinte comando: `make`.
 5. Após a compilação bem-sucedida, execute o programa com o comando: `./main`.
 6. Siga as instruções para entrada na Seção **Funcionamento**.
 
