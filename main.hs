@@ -83,6 +83,16 @@ executaIteracaoFolha res grafoIncidente estadoAtual noFolha
     res ++ executaFuncOrdemAlta grafoIncidente (executaPrograma grafoIncidente estadoAtual (retornaProgramaFolha noFolha)) (retornaProgramaFolha noFolha)
   | otherwise = []
 
+executaIteracaoUnario :: [String] -> [(String, String, Char)] -> String -> Node -> [String]
+executaIteracaoUnario res grafoIncidente estadoAtual noUnario
+  | null res =
+    res ++ [estadoAtual]
+  | length res == 1 =
+    res ++ avaliaEscolha grafoIncidente estadoAtual noUnario
+  | length res > 1 =
+    res ++ executaFuncOrdemAltaEs grafoIncidente (avaliaEscolha grafoIncidente estadoAtual noUnario) noUnario
+  | otherwise = []
+
 executaIteracaoBinario :: [String] -> [(String, String, Char)] -> String -> Node -> [String]
 executaIteracaoBinario res grafoIncidente estadoAtual noBinario
   | null res =
@@ -99,6 +109,8 @@ executaOpIteracao grafo estado no
     executaIteracaoFolha (executaIteracaoFolha (executaIteracaoFolha [] grafo estado (recuperaNo no)) grafo estado (recuperaNo no)) grafo estado (recuperaNo no)
   | verificarTipoNo (recuperaNo no) == Binario =
     executaIteracaoBinario (executaIteracaoBinario (executaIteracaoBinario [] grafo estado (recuperaNo no)) grafo estado (recuperaNo no)) grafo estado (recuperaNo no)
+  | verificarTipoNo (recuperaNo no) == Unario =
+    executaIteracaoUnario (executaIteracaoUnario (executaIteracaoUnario [] grafo estado (recuperaNo no)) grafo estado (recuperaNo no)) grafo estado (recuperaNo no)
   | otherwise = ["False"]
 
 executaOpUnario :: [(String, String, Char)] -> Node -> String -> [String]
@@ -223,7 +235,7 @@ main :: IO ()
 main = do
     frame <- criaFrame
     traverseStructure frame
-    let postfixExpression = "abUa*;"
+    let postfixExpression = "a**"
     let raiz = criaArvoreExpressao postfixExpression
     putStrLn $ "Arvore de Expressao: " ++ show raiz
     putStrLn $ lerArvoreExpressao raiz
